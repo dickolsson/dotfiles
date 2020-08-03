@@ -1,0 +1,18 @@
+#/usr/bin bash
+
+git clone --bare git@github.com:dickolsson/dotfiles.git $HOME/.dotfiles
+
+function dotfiles {
+  /usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME $@
+}
+
+dotfiles checkout
+
+# Backup files if checkout was not successful.
+if [ $? = 1 ]; then
+  mkdir -p $HOME/.dotfiles-backup
+  checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} $HOME/.dotfiles-backup/{}
+fi
+
+dotfiles checkout
+dotfiles config status.showUntrackedFiles no
