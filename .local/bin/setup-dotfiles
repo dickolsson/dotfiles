@@ -10,7 +10,7 @@ dotfiles checkout
 
 # Backup files if checkout was not successful.
 if [ $? = 1 ]; then
-  dotfiles checkout 2>&1 | egrep "\t?\." | awk {'print $1'} | xargs -I{} rsync -q -a -R {} $HOME/.dotfiles-backup/
+  dotfiles checkout 2>&1 | egrep "\t?\." | awk {'print $1'} | xargs -I{} rsync -a -R {} $HOME/.dotfiles-backup/ && rm {}
 fi
 
 dotfiles checkout
