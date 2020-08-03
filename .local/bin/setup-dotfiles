@@ -14,5 +14,6 @@ if [ $? = 1 ]; then
   checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} $HOME/.dotfiles-backup/{}
 fi
 
-dotfiles checkout
+# Now it's safe to do a hard reset.
+dotfiles reset --hard HEAD
 dotfiles config status.showUntrackedFiles no
