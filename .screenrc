@@ -1,0 +1,6 @@
+startup_message off
+defutf8 on
+nonblock on
+
+escape ``
+defescape ``
