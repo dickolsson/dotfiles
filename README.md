@@ -9,7 +9,8 @@
 Checkout the repository:
 
 ```
-git --git-dir=$HOME/.dotfiles --work-tree=$HOME clone git@github.com:dickolsson/dotfiles.git
+git clone --bare git@github.com:dickolsson/dotfiles.git
+git --git-dir=$HOME/.dotfiles --work-tree=$HOME checkout --force
 ```
 
 Hide untracked files in the repo:
