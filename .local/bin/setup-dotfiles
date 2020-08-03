@@ -9,10 +9,11 @@ function dotfiles {
 dotfiles checkout
 
 # Checkout will fail on conflicting files.
-# Backup and remove those files.
-# TODO: Fix the egrep pattern
+# So we backup and remove those files.
 if [ $? = 1 ]; then
-  dotfiles checkout 2>&1 | egrep "\t?\." | awk {'print $1'} | xargs -I{} sh -c "rsync -a -R {} $HOME/.dotfiles-backup/ && rm {}"
+  pattern="[^Please]\\t?\\."
+  rsync_and_rm="rsync -a -R {} $HOME/.dotfiles-backup/ && rm {}"
+  dotfiles checkout 2>&1 | egrep $pattern | awk {'print $1'} | xargs -I{} sh -c "$rsync_and_rm"
 fi
 
 dotfiles checkout
