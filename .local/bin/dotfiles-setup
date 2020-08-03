@@ -1,9 +1,11 @@
 #/usr/bin bash
 
-git clone --bare git@github.com:dickolsson/dotfiles.git $HOME/.dotfiles
+git=/usr/bin/git
+
+$git clone --bare git@github.com:dickolsson/dotfiles.git $HOME/.dotfiles
 
 function dotfiles {
-  /usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME $@
+  $git --git-dir=$HOME/.dotfiles --work-tree=$HOME $@
 }
 
 dotfiles checkout
@@ -18,3 +20,5 @@ fi
 
 dotfiles checkout
 dotfiles config status.showUntrackedFiles no
+
+$HOME/.local/bin/dotfiles-link

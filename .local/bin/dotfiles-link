@@ -1,0 +1,10 @@
+#/usr/bin bash
+
+set -e
+
+for file in $(find $HOME -name *.$(uname -s)); do
+  link=$(basename $file .$(uname -s))
+  dir=$(dirname $file)
+  cd $dir
+  ln -sf $(basename $file) $link
+done
