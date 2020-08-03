@@ -1,20 +1,18 @@
-# dotfiles
+# Dotfiles
+
+IMPORTANT: The dotfiles in this home directory are managed by a Git repo.
+
+See `.local/bin/setup-dotfiles` for the details of how the Git repo and
+this home directory was provisioned.
 
 ## Dependencies
 
-- Git
+- curl
+- git
+- rsync
 
-## New system
-
-Checkout the repository:
-
-```
-git clone --bare git@github.com:dickolsson/dotfiles.git
-git --git-dir=$HOME/.dotfiles --work-tree=$HOME checkout --force
-```
-
-Hide untracked files in the repo:
+## New system setup
 
 ```
-dotfiles config --local status.showUntrackedFiles no
+curl -Ls https://raw.githubusercontent.com/dickolsson/dotfiles/master/.local/bin/setup-dotfiles | /bin/bash
 ```
