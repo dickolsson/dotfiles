@@ -8,5 +8,5 @@
 	smtpencryption = tls
 	smtpserver = 127.0.0.1
 	smtpserverport = 1143
-	smtpsslcertpath = /usr/local/share/ca-certificates/protonmail-bridge.pam
+	smtpsslcertpath = ~/.local/share/ca-certificates/protonmail-bridge.pem
 	smtpuser = hi@senzilla.io
