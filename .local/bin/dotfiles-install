@@ -2,7 +2,7 @@
 
 git=/usr/bin/git
 
-$git clone --bare git@github.com:dickolsson/dotfiles.git $HOME/.dotfiles
+$git clone --bare https://github.com/dickolsson/dotfiles.git $HOME/.dotfiles
 
 function dotfiles {
   $git --git-dir=$HOME/.dotfiles --work-tree=$HOME $@
