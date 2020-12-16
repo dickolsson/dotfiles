@@ -1,3 +1,6 @@
+[core]
+	editor = vi
+
 [user]
 	name = Dick Olsson
 	username = dickolsson
@@ -10,3 +13,5 @@
 	smtpserverport = 1143
 	smtpsslcertpath = ~/.local/share/ca-certificates/protonmail-bridge.pem
 	smtpuser = hi@senzilla.io
+[commit]
+	gpgsign = true
