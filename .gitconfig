@@ -1,12 +1,10 @@
 [core]
 	editor = vi
-
 [user]
 	name = Dick Olsson
 	username = dickolsson
 	email = hi@senzilla.io
 	signingkey = 8204A8CD
-
 [sendemail]
 	smtpencryption = tls
 	smtpserver = 127.0.0.1
