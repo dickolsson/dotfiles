@@ -8,8 +8,8 @@
 [sendemail]
 	smtpencryption = tls
 	smtpserver = 127.0.0.1
-	smtpserverport = 1143
-	smtpsslcertpath = ~/.local/share/ca-certificates/protonmail-bridge.pem
+	smtpserverport = 1025
+	smtpsslcertpath =
 	smtpuser = hi@senzilla.io
 [commit]
 	gpgsign = true
