@@ -14,5 +14,5 @@ this home directory was installed.
 ## New system setup
 
 ```
-curl -Ls https://raw.githubusercontent.com/dickolsson/dotfiles/master/.local/bin/dotfiles-install | /bin/bash
+curl -Ls https://raw.githubusercontent.com/dickolsson/dotfiles/master/.local/bin/dotfiles-install | sh
 ```
