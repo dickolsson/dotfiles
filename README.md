@@ -39,3 +39,16 @@ $ sudo make install
 ```
 curl -Ls https://raw.githubusercontent.com/dickolsson/dotfiles/master/.local/bin/dotfiles-install | sh
 ```
+
+## Common issues
+
+Problem: GPG signing issues
+```
+sign_and_send_pubkey: signing failed for RSA [...] from agent: agent refused operation
+
+```
+
+Fix: Restart the pinentry program
+```
+gpg-connect-agent updatestartuptty /bye > /dev/null
+```
