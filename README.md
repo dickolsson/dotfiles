@@ -34,6 +34,14 @@ $ make
 $ sudo make install
 ```
 
+### 2. Fetch GPG key
+
+```
+$ gpg2 --card-edit
+gpg/card> fetch
+gpg/card> quit
+```
+
 ### 3. Install dotfiles
 
 ```
