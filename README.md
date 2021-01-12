@@ -18,9 +18,9 @@ this home directory was installed.
 Install the system with a `sysadm` user. Then:
 
 ```
-root# usermod -aG adm,staff sysadm
-root# chmod 775 /usr/local /usr/local/etc /usr/local/share
-root# chown root:staff /usr/local /usr/local/etc /usr/local/share
+root# usermod -aG staff sysadm
+root# mkdir /usr/local/{bin,etc,libexec,man,pkgdb,sbin,share,var}
+root# find /usr/local/* -type d -exec chown root:staff {} \; -exec chmod 775 {} \;
 ```
 
 ### 1. Bootstrap pkgsrc
@@ -41,6 +41,7 @@ root# pkg_add screen
 sysadm$ screen
 sysadm$ cd ~
 sysadm$ wget http://cdn.netbsd.org/pub/pkgsrc/stable/pkgsrc.tar.bz2
+sysadm$ tar xf pkgsrc.tar.bz2
 sysadm$ SH=/usr/bin/bash ./pkgsrc/bootstrap/bootstrap --prefix /usr/local --unprivileged
 ```
 
@@ -57,7 +58,7 @@ sysadm$ make
 sysadm$ make install
 ```
 
-### 2. Fetch GPG key
+### 3. Fetch GPG key
 
 ```
 $ gpg2 --card-edit
@@ -65,7 +66,7 @@ gpg/card> fetch
 gpg/card> quit
 ```
 
-### 3. Install dotfiles
+### 4. Install dotfiles
 
 ```
 curl -Ls https://raw.githubusercontent.com/dickolsson/dotfiles/master/.local/bin/dotfiles-install | sh
