@@ -43,7 +43,8 @@ sysadm$ screen
 sysadm$ cd ~
 sysadm$ wget http://cdn.netbsd.org/pub/pkgsrc/stable/pkgsrc.tar.bz2
 sysadm$ tar xf pkgsrc.tar.bz2
-sysadm$ SH=/usr/bin/bash ./pkgsrc/bootstrap/bootstrap --prefix /usr/local/pkg --unprivileged
+sysadm$ cd pkgsrc/
+sysadm$ SH=/bin/bash ./bootstrap/bootstrap --prefix /usr/local/pkg --unprivileged
 ```
 
 For macOS, you might need to work-around platform quirks in pkgsrc before bootstrapping:
