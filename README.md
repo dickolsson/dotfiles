@@ -5,12 +5,6 @@ IMPORTANT: The dotfiles in this home directory are managed by a Git repo.
 See `.local/bin/dotfiles-install` for the details of how the Git repo and
 this home directory was installed.
 
-## Dependencies
-
-- curl
-- git
-- rsync
-
 ## New system setup
 
 ### 0. Base system setup
@@ -37,13 +31,11 @@ On BSD:
 root# pkg_add screen
 ```
 
-Download and bootstrap pkgsrc:
+Download and bootstrap pkgsrc (replace `wget` with `curl -sL URL` or `ftp -o - URL` as appropriate):
 ```
 sysadm$ screen
-sysadm$ cd ~
-sysadm$ wget http://cdn.netbsd.org/pub/pkgsrc/stable/pkgsrc.tar.bz2
-sysadm$ tar xf pkgsrc.tar.bz2
-sysadm$ cd pkgsrc/
+sysadm$ wget -qO- https://cdn.netbsd.org/pub/pkgsrc/stable/pkgsrc.tar.bz2 | tar -xf - -C ~
+sysadm$ cd ~/pkgsrc/
 sysadm$ SH=/bin/bash ./bootstrap/bootstrap --prefix /usr/local/pkg --unprivileged
 ```
 
@@ -52,19 +44,19 @@ For macOS, you might need to work-around platform quirks in pkgsrc before bootst
 sysadm$ export OSX_SDK_PATH=$(xcrun --show-sdk-path)
 ```
 
-And until we have our dotfiles installed:
+And, until we have our dotfiles installed:
 ```
 sysadm$ export PATH=/usr/local/pkg/bin:/usr/local/pkg/sbin:$PATH
 ```
 
 ### 2. Install base packages
 
-- `/usr/pkgsrc/editors/vim`
-- `/usr/pkgsrc/net/rsync`
-- `/usr/pkgsrc/security/gnupg2`
-- `/usr/pkgsrc/security/pcsc-tools`
-- `/usr/pkgsrc/security/pinentry-mac`
+- `editors/vim`
+- `net/wget`
+- `net/rsync`
+- `security/gnupg2`
 
+For each package:
 ```
 sysadm$ bmake
 sysadm$ bmake install
@@ -73,7 +65,7 @@ sysadm$ bmake install
 ### 3. Fetch GPG key
 
 ```
-$ gpg2 --card-edit
+sysadm$ gpg2 --card-edit
 gpg/card> fetch
 gpg/card> quit
 ```
@@ -81,7 +73,7 @@ gpg/card> quit
 ### 4. Install dotfiles
 
 ```
-curl -Ls https://raw.githubusercontent.com/dickolsson/dotfiles/master/.local/bin/dotfiles-install | sh
+wget -qO- https://raw.githubusercontent.com/dickolsson/dotfiles/master/.local/bin/dotfiles-install | sh
 ```
 
 ## Common issues
