@@ -23,7 +23,7 @@ root# chmod 775 /usr/local /usr/local/etc /usr/local/share
 root# chown root:staff /usr/local /usr/local/etc /usr/local/share
 ```
 
-### 0. Bootstrap pkgsrc
+### 1. Bootstrap pkgsrc
 
 In order to reliably bootstrap pkgsrc we need a few essentials:
 
@@ -44,7 +44,7 @@ sysadm$ wget http://cdn.netbsd.org/pub/pkgsrc/stable/pkgsrc.tar.bz2
 sysadm$ SH=/usr/bin/bash ./pkgsrc/bootstrap/bootstrap --prefix /usr/local --unprivileged
 ```
 
-### 1. Install base packages
+### 2. Install base packages
 
 - `/usr/pkgsrc/editors/vim`
 - `/usr/pkgsrc/net/rsync`
