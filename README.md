@@ -19,8 +19,8 @@ Install the system with a `sysadm` user. Then:
 
 ```
 root# usermod -aG staff sysadm
-root# mkdir /usr/local/{bin,etc,libexec,man,pkgdb,sbin,share,var}
-root# find /usr/local/* -type d -exec chown root:staff {} \; -exec chmod 775 {} \;
+root# mkdir /usr/local/pkg
+root# chown sysadm:staff /usr/local/pkg
 ```
 
 ### 1. Bootstrap pkgsrc
@@ -37,12 +37,23 @@ On BSD:
 root# pkg_add screen
 ```
 
+Download and bootstrap pkgsrc:
 ```
 sysadm$ screen
 sysadm$ cd ~
 sysadm$ wget http://cdn.netbsd.org/pub/pkgsrc/stable/pkgsrc.tar.bz2
 sysadm$ tar xf pkgsrc.tar.bz2
-sysadm$ SH=/usr/bin/bash ./pkgsrc/bootstrap/bootstrap --prefix /usr/local --unprivileged
+sysadm$ SH=/usr/bin/bash ./pkgsrc/bootstrap/bootstrap --prefix /usr/local/pkg --unprivileged
+```
+
+For macOS, you might need to work-around platform quirks in pkgsrc before bootstrapping:
+```
+sysadm$ export OSX_SDK_PATH=$(xcrun --show-sdk-path)
+```
+
+And until we have our dotfiles installed:
+```
+sysadm$ export PATH=/usr/local/pkg/bin:/usr/local/pkg/sbin:$PATH
 ```
 
 ### 2. Install base packages
@@ -54,8 +65,8 @@ sysadm$ SH=/usr/bin/bash ./pkgsrc/bootstrap/bootstrap --prefix /usr/local --unpr
 - `/usr/pkgsrc/security/pinentry-mac`
 
 ```
-sysadm$ make
-sysadm$ make install
+sysadm$ bmake
+sysadm$ bmake install
 ```
 
 ### 3. Fetch GPG key
