@@ -13,15 +13,38 @@ this home directory was installed.
 
 ## New system setup
 
+### 0. Base system setup
+
+Install the system with a `sysadm` user. Then:
+
+```
+root# usermod -aG adm,staff sysadm
+root# chmod 775 /usr/local /usr/local/etc /usr/local/share
+root# chown root:staff /usr/local /usr/local/etc /usr/local/share
+```
+
+### 0. Bootstrap pkgsrc
+
+In order to reliably bootstrap pkgsrc we need a few essentials:
+
+On Debian:
+```
+root# apt install build-essential screen
+```
+
+On BSD:
+```
+root# pkg_add screen
+```
+
+```
+sysadm$ screen
+sysadm$ cd ~
+sysadm$ wget http://cdn.netbsd.org/pub/pkgsrc/stable/pkgsrc.tar.bz2
+sysadm$ SH=/usr/bin/bash ./pkgsrc/bootstrap/bootstrap --prefix /usr/local --unprivileged
+```
+
 ### 1. Install base packages
-
-#### Debian
-
-```
-sudo apt install vim rsync gnupg2 gnupg-agent scdaemon pcscd
-```
-
-#### BSD and Darwin
 
 - `/usr/pkgsrc/editors/vim`
 - `/usr/pkgsrc/net/rsync`
@@ -30,8 +53,8 @@ sudo apt install vim rsync gnupg2 gnupg-agent scdaemon pcscd
 - `/usr/pkgsrc/security/pinentry-mac`
 
 ```
-$ make
-$ sudo make install
+sysadm$ make
+sysadm$ make install
 ```
 
 ### 2. Fetch GPG key
