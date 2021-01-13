@@ -52,6 +52,7 @@ sysadm$ export PATH=/usr/local/pkg/bin:/usr/local/pkg/sbin:$PATH
 ### 2. Install base packages
 
 - `editors/vim`
+- `devel/git`
 - `net/wget`
 - `net/rsync`
 - `security/gnupg2`
