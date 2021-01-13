@@ -31,10 +31,10 @@ On BSD:
 root# pkg_add screen
 ```
 
-Download and bootstrap pkgsrc (replace `wget` with `curl -sL URL` or `ftp -o - URL` as appropriate):
+Download and bootstrap pkgsrc (replace `wget -qO-` with `curl -sL URL` or `ftp -o - URL` as appropriate):
 ```
 sysadm$ screen
-sysadm$ wget -qO- https://cdn.netbsd.org/pub/pkgsrc/stable/pkgsrc.tar.bz2 | tar -xf - -C ~
+sysadm$ wget -qO- https://cdn.netbsd.org/pub/pkgsrc/stable/pkgsrc.tar.bz2 | tar -xjf - -C ~
 sysadm$ cd ~/pkgsrc/
 sysadm$ SH=/bin/bash ./bootstrap/bootstrap --prefix /usr/local/pkg --unprivileged
 ```
