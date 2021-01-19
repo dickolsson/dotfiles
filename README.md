@@ -77,9 +77,20 @@ gpg/card> quit
 wget -qO- https://raw.githubusercontent.com/dickolsson/dotfiles/master/.local/bin/dotfiles-install | sh
 ```
 
+## Known issues
+
+### QEMU on M1 Mac Mini
+
+With pkgsrc, QEMU (or specifically SPICE Server) doesn't compile out-of-the-box on a M1 Mac Mini.
+
+* Patches: https://stackoverflow.com/a/61444622
+* TODO: Submit patches upstream, and to pkgsrc.
+
 ## Common issues
 
-Problem: GPG signing issues
+### GPG signing issues
+
+Error:
 ```
 sign_and_send_pubkey: signing failed for RSA [...] from agent: agent refused operation
 
