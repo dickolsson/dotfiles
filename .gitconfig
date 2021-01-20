@@ -13,3 +13,5 @@
 	smtpuser = hi@senzilla.io
 [commit]
 	gpgsign = true
+[gpg]
+	program = gpg2
