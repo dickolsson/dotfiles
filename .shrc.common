@@ -8,6 +8,6 @@ case $- in
 	*) return;;
 esac
 
-PATH=$PATH:~/.local/bin
+PATH=/usr/local/pkg/bin:/usr/local/pkg/sbin:$PATH:~/.local/bin
 
 alias dotfiles='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
