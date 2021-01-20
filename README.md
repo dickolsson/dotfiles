@@ -65,10 +65,18 @@ sysadm$ bmake install
 
 ### 3. Fetch GPG key
 
+On local systems:
 ```
 sysadm$ gpg2 --card-edit
 gpg/card> fetch
 gpg/card> quit
+```
+
+On remote systems:
+```
+
+```
+sysadm$ gpg2 --keyserver keyserver.ubuntu.com --recv 8204A8CD
 ```
 
 ### 4. Install dotfiles
