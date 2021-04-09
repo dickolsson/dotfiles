@@ -73,7 +73,6 @@ gpg/card> quit
 ```
 
 On remote systems:
-```
 
 ```
 sysadm$ gpg2 --keyserver keyserver.ubuntu.com --recv 8204A8CD
