@@ -13,8 +13,8 @@ Install the system with a `sysadm` user. Then:
 
 ```
 root# usermod -aG staff sysadm
-root# mkdir /usr/local/pkg
-root# chown sysadm:staff /usr/local/pkg
+root# mkdir -p /usr/local/pkg/etc
+root# chown -R sysadm:staff /usr/local/pkg
 ```
 
 ### 1. Bootstrap pkgsrc
@@ -34,9 +34,14 @@ root# pkg_add screen
 Download and bootstrap pkgsrc (replace `wget -qO-` with `curl -sL URL` or `ftp -o - URL` as appropriate):
 ```
 sysadm$ screen
+sysadm# cat > /usr/local/pkg/etc/mk.conf <<EOF
+DISTDIR= /usr/local/pkg/distfiles
+PACKAGES= /usr/local/pkg/packages
+EOF
 sysadm$ wget -qO- https://cdn.netbsd.org/pub/pkgsrc/stable/pkgsrc.tar.bz2 | tar -xjf - -C ~
 sysadm$ cd ~/pkgsrc/
 sysadm$ SH=/bin/bash ./bootstrap/bootstrap --prefix /usr/local/pkg --unprivileged
+sysadm$ cat work/mk.conf.example >> /usr/local/pkg/etc/mk.conf
 ```
 
 For macOS, you might need to work-around platform quirks in pkgsrc before bootstrapping:
