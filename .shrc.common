@@ -9,5 +9,6 @@ case $- in
 esac
 
 PATH=/usr/local/pkg/bin:/usr/local/pkg/sbin:$PATH:~/.local/bin
+PS1="$USER@${HOSTNAME:=$(hostname -s)}$(test $UID -eq 0 && printf '#' || printf '$') "
 
 alias dotfiles='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
