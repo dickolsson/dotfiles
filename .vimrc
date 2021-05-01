@@ -5,3 +5,4 @@ set colorcolumn=72
 set directory=~/tmp,/tmp
 set backupdir=~/tmp,/tmp
 set undodir=~/tmp,/tmp
+let g:netrw_banner=0
