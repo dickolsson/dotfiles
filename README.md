@@ -125,7 +125,14 @@ gpg/card> fetch
 gpg/card> quit
 ```
 
-On remote systems:
+On remote systems, configure the SSH server:
+
+```
+root# echo "StreamLocalBindUnlink yes" > /etc/ssh/sshd_config
+root# systemctl restart sshd
+```
+
+And import the GPG key:
 
 ```
 sysadm$ gpg2 --keyserver keyserver.ubuntu.com --recv 8204A8CD
