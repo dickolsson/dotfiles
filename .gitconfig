@@ -6,7 +6,7 @@
 	email = hi@senzilla.io
 	signingkey = 8204A8CD
 [sendemail]
-	smtpencryption = tls
+	smtpencryption =
 	smtpserver = 127.0.0.1
 	smtpserverport = 1025
 	smtpsslcertpath =
@@ -15,3 +15,5 @@
 	gpgsign = true
 [gpg]
 	program = gpg2
+[pull]
+	rebase = true
