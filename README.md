@@ -5,7 +5,49 @@ IMPORTANT: The dotfiles in this home directory are managed by a Git repo.
 See `.local/bin/dotfiles-install` for the details of how the Git repo and
 this home directory was installed.
 
-## New system setup
+## Basic guidelines for new systems
+
+* Build machines: Debain Bullseye
+* Service machines: Alpine
+* Network appliances: OpenWRT (with musl)
+* Linux 5.9 or above
+* Create a `sysadm` user
+* Separate `/home` partition
+* Always use a Wireguard connection
+
+## 1. Wireguard setup
+
+Before we do anything, we need a reliable and private connection.
+
+On Debian:
+
+```
+root# apt install wireguard resolvconf
+```
+
+Install, enable and start a Wireguard configuration:
+
+```
+root# cp example.conf /etc/wireguard/
+root# systemctl enable wg-quick@example
+root# systemctl start wg-quick@example
+```
+
+## Build machine setup
+
+### OpenWRT dependencies:
+
+```
+root# apt install asciidoc binutils flex gcc intltool make libncurses-dev libssl-dev patch python3-dev unzip gettext libxslt1-dev zlib1g-dev libboost-dev libxml-parser-perl libusb-dev bin86 bcc sharutils libpam0g-dev libcap-dev xsltproc
+```
+
+### Buildroot dependencies
+
+```
+root# apt install binutils gcc make libncurses-dev unzip patch python3-nose2 python3-pexpect
+```
+
+## General machine setup
 
 ### 0. Base system setup
 
@@ -22,16 +64,19 @@ root# chown -R sysadm:staff /usr/local/pkg
 In order to reliably bootstrap pkgsrc we need a few essentials:
 
 On Debian:
+
 ```
 root# apt install build-essential screen
 ```
 
 On BSD:
+
 ```
-root# pkg_add screen
+root# pkg add screen
 ```
 
 Download and bootstrap pkgsrc (replace `wget -qO-` with `curl -sL URL` or `ftp -o - URL` as appropriate):
+
 ```
 sysadm$ screen
 sysadm# cat > /usr/local/pkg/etc/mk.conf <<EOF
@@ -45,11 +90,13 @@ sysadm$ cat work/mk.conf.example >> /usr/local/pkg/etc/mk.conf
 ```
 
 For macOS, you might need to work-around platform quirks in pkgsrc before bootstrapping:
+
 ```
 sysadm$ export OSX_SDK_PATH=$(xcrun --show-sdk-path)
 ```
 
 And, until we have our dotfiles installed:
+
 ```
 sysadm$ export PATH=/usr/local/pkg/bin:/usr/local/pkg/sbin:$PATH
 ```
@@ -63,6 +110,7 @@ sysadm$ export PATH=/usr/local/pkg/bin:/usr/local/pkg/sbin:$PATH
 - `security/gnupg2`
 
 For each package:
+
 ```
 sysadm$ bmake
 sysadm$ bmake install
@@ -103,12 +151,14 @@ With pkgsrc, QEMU (or specifically SPICE Server) doesn't compile out-of-the-box 
 ### GPG signing issues
 
 Error:
+
 ```
-sign_and_send_pubkey: signing failed for RSA [...] from agent: agent refused operation
+sign and send pubkey: signing failed for RSA [...] from agent: agent refused operation
 
 ```
 
 Fix: Restart the pinentry program
+
 ```
 gpg-connect-agent updatestartuptty /bye > /dev/null
 ```
