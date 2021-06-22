@@ -80,6 +80,7 @@ Download and bootstrap pkgsrc (replace `wget -qO-` with `curl -sL URL` or `ftp -
 ```
 sysadm$ screen
 sysadm# cat > /usr/local/pkg/etc/mk.conf <<EOF
+LOCALBASE= /usr/local/pkg
 DISTDIR= /usr/local/pkg/distfiles
 PACKAGES= /usr/local/pkg/packages
 EOF
