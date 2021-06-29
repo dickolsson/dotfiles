@@ -129,7 +129,7 @@ gpg/card> quit
 On remote systems, configure the SSH server:
 
 ```
-root# echo "StreamLocalBindUnlink yes" > /etc/ssh/sshd_config
+root# echo "StreamLocalBindUnlink yes" >> /etc/ssh/sshd_config
 root# systemctl restart sshd
 ```
 
