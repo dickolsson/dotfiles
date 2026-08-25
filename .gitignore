@@ -1,0 +1,14 @@
+# The bare repo itself (avoid recursion).
+.dotfiles
+
+# macOS
+.DS_Store
+
+# iTerm2
+.iterm2/
+
+# Unsanitized backups
+*.bak
+
+# Machine-local settings (e.g. CHECK_WORDS for `make check-words`)
+.env

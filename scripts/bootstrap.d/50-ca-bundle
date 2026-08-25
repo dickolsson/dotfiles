@@ -1,0 +1,51 @@
+#!/bin/sh
+# Regenerate ~/.config/ssl/ca-bundle.pem from the macOS keychains:
+# Apple's trusted roots plus admin-installed CAs (TLS inspection).
+# Referenced by SSL_CERT_FILE in ~/.zshenv so OpenSSL-based tooling
+# (Python ssl/urllib, uv, curl, ...) trusts the same CAs as the system.
+# Rerun (`make bootstrap`) after a corporate CA rotation or macOS root
+# store update.
+set -eu
+
+out="$HOME/.config/ssl/ca-bundle.pem"
+
+command -v security >/dev/null 2>&1 || {
+    echo "50-ca-bundle: no security(1); not macOS?" >&2
+    exit 2
+}
+
+tmpdir="$(mktemp -d)"
+trap 'rm -rf "$tmpdir"' EXIT
+
+security find-certificate -a -p /System/Library/Keychains/SystemRootCertificates.keychain > "$tmpdir/all.pem"
+security find-certificate -a -p /Library/Keychains/System.keychain >> "$tmpdir/all.pem"
+
+# Split into one file per certificate
+awk -v dir="$tmpdir" '/-----BEGIN CERTIFICATE-----/{n++} n{print > (dir "/" n ".crt")}' "$tmpdir/all.pem"
+
+# Keep only unexpired CA certificates (drops device/client certs from the
+# System keychain), prefixed with their subject for readability.
+: > "$tmpdir/bundle.pem"
+kept=0
+for f in "$tmpdir"/*.crt; do
+    openssl x509 -in "$f" -noout -checkend 0 >/dev/null 2>&1 || continue
+    openssl x509 -in "$f" -noout -text 2>/dev/null | grep -q 'CA:TRUE' || continue
+    openssl x509 -in "$f" -noout -subject >> "$tmpdir/bundle.pem"
+    openssl x509 -in "$f" >> "$tmpdir/bundle.pem"
+    kept=$((kept + 1))
+done
+
+# Never replace a working bundle with an empty one.
+if [ "$kept" -eq 0 ]; then
+    echo "50-ca-bundle: no CA certificates extracted; keeping existing bundle" >&2
+    exit 1
+fi
+
+if cmp -s "$tmpdir/bundle.pem" "$out" 2>/dev/null; then
+    echo "50-ca-bundle: $out is up to date ($kept CA certificates)"
+    exit 0
+fi
+
+mkdir -p "${out%/*}"
+mv "$tmpdir/bundle.pem" "$out"
+echo "50-ca-bundle: wrote $out ($kept CA certificates)"

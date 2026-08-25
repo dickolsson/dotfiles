@@ -1,0 +1,46 @@
+#!/bin/sh
+set -e
+
+eval "$(jq -r '
+  .context_window.current_usage as $u |
+  ($u // {} | .input_tokens + (.cache_creation_input_tokens // 0)
+    + (.cache_read_input_tokens // 0)) as $t |
+  @sh "raw_dir=\(.workspace.current_dir)",
+  @sh "wt_name=\(.worktree.name // "")",
+  @sh "tokens_k=\(if $t > 0 then ($t / 1000 | round) else 0 end)"
+')"
+
+dir=$(echo "$raw_dir" | sed -e "s|^$HOME|~|" -e 's|/\.claude/worktrees/.*||')
+
+GREEN='\033[32m' YELLOW='\033[33m' RED='\033[31m' RESET='\033[0m'
+
+strip_prefix() { [ ${#1} -gt 16 ] && echo "$1" | sed 's|^[^/+]*/||; s|^[^/+]*+||' || echo "$1"; }
+
+branch=$(git -C "$raw_dir" rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+branch=$(strip_prefix "${branch:-$wt_name}")
+
+if [ -z "$wt_name" ]; then
+  wt_name=$(echo "$raw_dir" | sed -n 's|.*/\.claude/worktrees/\([^/]*\).*|\1|p')
+fi
+
+if [ -n "$wt_name" ]; then
+  git_info=" ${GREEN}✔ $(strip_prefix "$wt_name")${RESET} · ${branch}"
+elif [ -n "$branch" ]; then
+  git_info=" ${RED}✘ worktree${RESET} · ${branch}"
+fi
+
+# Thresholds are absolute: retrieval degrades with token count, not relative to model max.
+if [ "$tokens_k" -gt 0 ] 2>/dev/null; then
+  if [ "$tokens_k" -ge 200 ]; then
+    tok="${RED}✘ ${tokens_k}k${RESET}"
+  elif [ "$tokens_k" -ge 100 ]; then
+    tok="${YELLOW}◆ ${tokens_k}k${RESET}"
+  else
+    tok="${GREEN}✔ ${tokens_k}k${RESET}"
+  fi
+fi
+
+printf '%s$' "$dir"
+[ -n "$tok" ] && printf ' %b' "$tok"
+[ -n "$git_info" ] && printf ' ·%b' "$git_info"
+printf '\n'

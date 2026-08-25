@@ -1,0 +1,196 @@
+#!/usr/bin/perl
+# Derive machine-local banned words for `make check-words` and append the
+# missing ones to ~/.env, never overwriting existing content. The corporate
+# and machine identity is discovered structurally, so neither a company
+# name nor a machine detail appears in this script or the repo:
+#
+#   1. AD-style DC= components of CA certificates in the System keychain
+#      (offline, MDM-installed, the most stable source)
+#   2. DNS search domains pushed by the corporate network
+#   3. DC= components in the issuer chain of an intercepted TLS probe
+#   4. the local account name
+#   5. the machine's short host name
+#
+# Each discovered domain is reduced to its second-level label (a.b.c -> b).
+# Words already present in ~/.env are skipped, so the script is idempotent
+# and safe to rerun. Exits non-zero when nothing at all is detected, so a
+# broken setup cannot pass silently. Appended lines use
+# `DOTFILES_CHECK_WORDS +=`, which GNU make merges with any existing
+# DOTFILES_CHECK_WORDS definition.
+#
+# Environment:
+#   DETECT_PROBE_HOST  host for the TLS probe (default example.com)
+
+use strict;
+use warnings;
+use File::Temp qw(tempdir);
+use Sys::Hostname qw(hostname);
+
+$SIG{INT}  = sub { exit 130 };
+$SIG{TERM} = sub { exit 143 };
+
+if (@ARGV) {
+    print STDERR "usage: 10-check-words (takes no arguments)\n";
+    exit 2;
+}
+
+my $home = $ENV{HOME};
+if (!defined $home || $home eq '') {
+    print STDERR "10-check-words: HOME is not set\n";
+    exit 1;
+}
+my $env_file   = "$home/.env";
+my $probe_host = $ENV{DETECT_PROBE_HOST} // 'example.com';
+
+if (-e $env_file && !-w $env_file) {
+    print STDERR "10-check-words: $env_file is not writable\n";
+    exit 1;
+}
+
+my $tmpdir = tempdir(CLEANUP => 1);
+
+# Run a command with stdin from /dev/null and stderr discarded, returning
+# its stdout, or '' if it fails or exceeds the timeout (the child is
+# killed, so a hung network probe cannot hang the script).
+sub capture {
+    my ($timeout, @cmd) = @_;
+    my $pid = open(my $fh, '-|');
+    die "10-check-words: fork failed: $!\n" unless defined $pid;
+    if ($pid == 0) {
+        open(STDIN,  '<', '/dev/null');
+        open(STDERR, '>', '/dev/null');
+        exec @cmd or CORE::exit(127);
+    }
+    my $out = '';
+    eval {
+        local $SIG{ALRM} = sub { die "timeout\n" };
+        alarm $timeout;
+        local $/;
+        $out = <$fh> // '';
+        alarm 0;
+    };
+    if ($@) {
+        kill 'TERM', $pid;
+        waitpid $pid, 0;
+        return '';
+    }
+    close $fh;
+    return $out;
+}
+
+sub pem_blocks {
+    my ($text) = @_;
+    return $text =~ /(-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----)/gs;
+}
+
+# Return the domain encoded in a certificate name's DC= components
+# (RFC2253 order is specific-to-root, so joining with dots gives the
+# domain directly), or '' when the name has no DC components.
+sub dc_domain {
+    my ($pem, $field) = @_;
+    my $file = "$tmpdir/cert.pem";
+    open(my $out, '>', $file) or return '';
+    print {$out} $pem, "\n";
+    close $out;
+    my $name = capture(10, 'openssl', 'x509', '-in', $file, '-noout',
+        $field, '-nameopt', 'RFC2253');
+    my @dcs = $name =~ /DC=([^,]+)/g;
+    return '' unless @dcs;
+    return lc join '.', @dcs;
+}
+
+# Return the second-level label of a domain (a.b.c -> b), skipping
+# reserved suffixes and labels too short to be meaningful words.
+my %reserved_tld = map { $_ => 1 }
+    qw(internal local lan home box arpa localdomain corp test invalid example);
+
+sub domain_to_word {
+    my ($domain) = @_;
+    my @labels = split /\./, lc $domain;
+    return unless @labels >= 2;
+    return if $reserved_tld{ $labels[-1] };
+    my $word = $labels[-2];
+    return unless length($word) >= 3;
+    return unless $word =~ /^[a-z0-9-]+$/;
+    return $word;
+}
+
+my (%seen, @words);
+
+# Add one banned word, applying the same minimum-length and character
+# filters as domain labels, deduplicated.
+sub add_word {
+    my ($word) = @_;
+    return unless defined $word;
+    $word = lc $word;
+    return unless length($word) >= 3;
+    return unless $word =~ /^[a-z0-9-]+$/;
+    push @words, $word unless $seen{$word}++;
+}
+
+sub add_domain {
+    my ($domain) = @_;
+    return unless $domain;
+    add_word(domain_to_word($domain));
+}
+
+# Source 1: System keychain CA subjects.
+my $keychain = capture(15, 'security', 'find-certificate', '-a', '-p',
+    '/Library/Keychains/System.keychain');
+add_domain(dc_domain($_, '-subject')) for pem_blocks($keychain);
+
+# Source 2: DNS search domains.
+for my $line (split /\n/, capture(10, 'scutil', '--dns')) {
+    add_domain($1) if $line =~ /\bsearch domain\b.*?:\s*(\S+)/;
+}
+
+# Source 3: issuer DNs of an intercepted TLS chain.
+my $probe = capture(10, 'openssl', 's_client', '-connect',
+    "$probe_host:443", '-servername', $probe_host, '-showcerts');
+add_domain(dc_domain($_, '-issuer')) for pem_blocks($probe);
+
+# Source 4: the local account name (from the password database, not the
+# spoofable environment; env is only a fallback).
+add_word((getpwuid($<))[0] // $ENV{USER} // $ENV{LOGNAME});
+
+# Source 5: the machine's short host name (first label, whole — labels
+# are not split further, keeping the banned word specific).
+my $host = eval { hostname() } // '';
+add_word((split /\./, $host)[0]);
+
+@words = sort @words;
+if (!@words) {
+    print STDERR
+        "10-check-words: no corporate identity detected on this machine\n";
+    exit 1;
+}
+
+my $existing = '';
+if (-f $env_file) {
+    open(my $in, '<', $env_file) or do {
+        print STDERR "10-check-words: cannot read $env_file: $!\n";
+        exit 1;
+    };
+    local $/;
+    $existing = <$in> // '';
+    close $in;
+}
+
+my @missing = grep { $existing !~ /\b\Q$_\E\b/i } @words;
+if (!@missing) {
+    print "10-check-words: $env_file already lists: @words\n";
+    exit 0;
+}
+
+# Append on a fresh line even if the file lacks a trailing newline; a
+# single buffered print flushed by close keeps the append one write.
+my $prefix = (length($existing) && $existing !~ /\n\z/) ? "\n" : '';
+open(my $out, '>>', $env_file) or do {
+    print STDERR "10-check-words: cannot append to $env_file: $!\n";
+    exit 1;
+};
+print {$out} $prefix, "DOTFILES_CHECK_WORDS += @missing\n"
+    or die "10-check-words: write to $env_file failed: $!\n";
+close $out or die "10-check-words: write to $env_file failed: $!\n";
+print
+    "10-check-words: appended to $env_file: DOTFILES_CHECK_WORDS += @missing\n";

@@ -1,0 +1,24 @@
+#!/bin/sh
+# Enforce Rancher Desktop's in-app updater through the locked deployment
+# profile (auto_updates casks self-update; see README.md Security).
+set -eu
+
+src="$HOME/scripts/rancher-profile.plist"
+domain=io.rancherdesktop.profile.locked
+
+command -v defaults >/dev/null 2>&1 || {
+	echo "30-rancher-profile: no defaults(1); not macOS?" >&2
+	exit 2
+}
+[ -f "$src" ] || {
+	echo "30-rancher-profile: missing $src" >&2
+	exit 1
+}
+
+if defaults read "$domain" application 2>/dev/null | grep -q 'enabled = 1'; then
+	echo "30-rancher-profile: locked profile already enforces the updater"
+	exit 0
+fi
+
+defaults import "$domain" "$src"
+echo "30-rancher-profile: imported $src into $domain"

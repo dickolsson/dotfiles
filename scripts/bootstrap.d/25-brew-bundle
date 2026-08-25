@@ -1,0 +1,25 @@
+#!/bin/sh
+# bootstrap-timeout: 3600
+# Install everything declared in ~/Brewfile (taps, formulae, casks) so
+# the remaining hooks and daily use have their tools. Runs after
+# 20-brew-env so installs happen under the enforced Homebrew policy. A
+# fresh machine installs for a long time, hence the raised timeout; once
+# satisfied, reruns are a quick check.
+set -eu
+
+command -v brew >/dev/null 2>&1 || {
+	echo "25-brew-bundle: brew is not installed" >&2
+	exit 2
+}
+
+[ -f "$HOME/Brewfile" ] || {
+	echo "25-brew-bundle: missing $HOME/Brewfile" >&2
+	exit 1
+}
+
+if brew bundle check --file="$HOME/Brewfile" >/dev/null 2>&1; then
+	echo "25-brew-bundle: Brewfile dependencies are satisfied"
+	exit 0
+fi
+
+brew bundle install --file="$HOME/Brewfile"

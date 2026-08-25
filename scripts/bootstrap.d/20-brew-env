@@ -1,0 +1,31 @@
+#!/bin/sh
+# Deploy the tracked Homebrew policy file to its root-owned enforcement
+# location (HOMEBREW_SYSTEM_ENV_TAKES_PRIORITY makes it authoritative for
+# every brew run). Needs sudo only when the deployed copy is missing or
+# has drifted from the tracked source.
+set -eu
+
+src="$HOME/scripts/brew.env"
+dst=/etc/homebrew/brew.env
+
+[ -f "$src" ] || {
+	echo "20-brew-env: missing $src" >&2
+	exit 1
+}
+
+if cmp -s "$src" "$dst" 2>/dev/null; then
+	echo "20-brew-env: $dst is up to date"
+	exit 0
+fi
+
+# Apply only when sudo can work: cached credentials, or a terminal to
+# prompt on. Otherwise skip so a later interactive run can apply it.
+if ! sudo -n true 2>/dev/null && ! [ -t 2 ]; then
+	echo "20-brew-env: $dst needs updating; rerun 'make bootstrap' in a terminal (sudo required)" >&2
+	exit 2
+fi
+
+sudo install -d -o root -g wheel -m 755 /etc/homebrew
+sudo install -o root -g wheel -m 644 "$src" "$dst"
+cmp -s "$src" "$dst"
+echo "20-brew-env: deployed $dst"

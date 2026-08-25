@@ -1,0 +1,5 @@
+theme = light:Terminal Basic,dark:Terminal Basic Dark
+
+# Self-updating cask: the brew autoupdate job skips auto_updates casks,
+# so Ghostty's own updater delivers updates (download = fetch and install)
+auto-update = download

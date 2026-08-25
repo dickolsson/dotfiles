@@ -1,0 +1,20 @@
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: macos-latest
+    env:
+      # Banned-word list for `make check-words`; absent on fork PRs, where
+      # the gate skips cleanly.
+      DOTFILES_CHECK_WORDS: ${{ secrets.DOTFILES_CHECK_WORDS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: brew install gitleaks
+      - run: make check
