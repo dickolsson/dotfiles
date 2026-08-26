@@ -1,5 +1,5 @@
 tap "buildpacks/tap"
-tap "forwardimpact/tap", trusted: { casks: ["fit-gear", "fit-outpost"] }
+tap "forwardimpact/tap", trusted: { casks: ["fit-outpost"] }
 tap "homebrew/autoupdate"
 tap "microsoft/apm"
 tap "oven-sh/bun"
@@ -32,8 +32,12 @@ brew "just"
 brew "libssh2"
 # LLM inference in C/C++
 brew "llama.cpp"
+# Simple markdown translator
+brew "lowdown"
 # Utility for directing compilation
 brew "make"
+# UNIX manpage compiler toolset
+brew "mandoc"
 # OpenBSD freely-licensed SSH connectivity tools
 brew "openssh"
 # Drop-in replacement for Terraform. Infrastructure as Code Tool
@@ -76,3 +80,5 @@ cask "rancher"
 cask "ungoogled-chromium"
 # Binary releases of VS Code without MS branding/telemetry/licensing
 cask "vscodium"
+# Services and library CLIs for Forward Impact products
+cask "forwardimpact/tap/fit-gear", trusted: true
