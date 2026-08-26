@@ -1,6 +1,8 @@
 #!/bin/sh
 # Enforce Rancher Desktop's in-app updater through the locked deployment
 # profile (auto_updates casks self-update; see README.md Security).
+# The profile needs a top-level `version` matching the settings schema, or
+# Rancher Desktop rejects the whole file at launch.
 set -eu
 
 src="$HOME/scripts/rancher-profile.plist"
@@ -15,7 +17,15 @@ command -v defaults >/dev/null 2>&1 || {
 	exit 1
 }
 
-if defaults read "$domain" application 2>/dev/null | grep -q 'enabled = 1'; then
+want_version=$(/usr/libexec/PlistBuddy -c 'Print :version' "$src" 2>/dev/null || echo '')
+[ -n "$want_version" ] || {
+	echo "30-rancher-profile: $src has no top-level version key" >&2
+	exit 1
+}
+
+have_version=$(defaults read "$domain" version 2>/dev/null || echo '')
+if [ "$have_version" = "$want_version" ] &&
+	defaults read "$domain" application 2>/dev/null | grep -q 'enabled = 1'; then
 	echo "30-rancher-profile: locked profile already enforces the updater"
 	exit 0
 fi
