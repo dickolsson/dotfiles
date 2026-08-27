@@ -71,7 +71,7 @@ brew "supabase/tap/supabase", trusted: true
 # Desktop password and login vault
 cask "bitwarden"
 # Terminal-based AI coding assistant
-cask "claude-code@latest"
+cask "claude-code"
 # Terminal emulator that uses platform-native UI and GPU acceleration
 cask "ghostty"
 # Kubernetes and container management on the desktop
