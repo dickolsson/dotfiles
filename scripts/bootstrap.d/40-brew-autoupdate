@@ -1,6 +1,6 @@
 #!/bin/sh
-# Install and start the daily Homebrew autoupdate launchd job
-# (brew update / upgrade / cleanup; auto_updates casks self-update).
+# Install and start the daily Homebrew autoupdate launchd job, fixed at
+# 05:00 (brew update / upgrade / cleanup; auto_updates casks self-update).
 set -eu
 
 command -v brew >/dev/null 2>&1 || {
@@ -8,16 +8,15 @@ command -v brew >/dev/null 2>&1 || {
 	exit 2
 }
 
-if brew autoupdate status 2>/dev/null | grep -q 'installed and running'; then
-	echo "40-brew-autoupdate: already installed and running"
+if brew autoupdate status 2>/dev/null | grep -q 'Schedule: every day at 05:00'; then
+	echo "40-brew-autoupdate: already installed and scheduled for 05:00"
 	exit 0
 fi
 
 brew tap | grep -qx homebrew/autoupdate || brew tap homebrew/autoupdate
 
-# A stale or stopped install can make `start` refuse; reset and retry.
-if ! brew autoupdate start --upgrade --cleanup; then
-	brew autoupdate delete >/dev/null 2>&1 || true
-	brew autoupdate start --upgrade --cleanup
-fi
-echo "40-brew-autoupdate: started (daily, upgrade + cleanup)"
+# Any prior install (missing, stale, or on the old relative-interval
+# schedule) can make `start` refuse; reset and retry on the fixed time.
+brew autoupdate delete >/dev/null 2>&1 || true
+brew autoupdate start 05:00 --upgrade --cleanup
+echo "40-brew-autoupdate: started (daily at 05:00, upgrade + cleanup)"
