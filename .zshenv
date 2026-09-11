@@ -16,7 +16,7 @@ export HOMEBREW_CASK_OPTS="--require-sha"            # Refuse casks without a re
 export HOMEBREW_FORMULA_BUILD_NETWORK=deny           # Sandbox: no network during source builds
 export HOMEBREW_FORMULA_POSTINSTALL_NETWORK=deny     # Sandbox: no network during postinstall
 export HOMEBREW_FORMULA_TEST_NETWORK=deny            # Sandbox: no network during brew test
-export HOMEBREW_ALLOWED_TAPS="homebrew/core homebrew/cask homebrew/autoupdate buildpacks/tap forwardimpact/tap microsoft/apm oven-sh/bun supabase/tap"
+export HOMEBREW_ALLOWED_TAPS="homebrew/core homebrew/cask domt4/autoupdate buildpacks/tap forwardimpact/tap microsoft/apm oven-sh/bun supabase/tap"
 
 # Compiler search paths
 export CPATH="/opt/homebrew/include${CPATH:+:$CPATH}"

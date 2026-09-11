@@ -1,6 +1,6 @@
 tap "buildpacks/tap"
+tap "domt4/autoupdate", trusted: { commands: ["autoupdate"] }
 tap "forwardimpact/tap", trusted: { casks: ["fit-outpost"] }
-tap "homebrew/autoupdate"
 tap "microsoft/apm"
 tap "oven-sh/bun"
 tap "supabase/tap"
@@ -60,6 +60,8 @@ brew "signify-osx"
 brew "telnet"
 # Extremely fast Python package installer and resolver, written in Rust
 brew "uv"
+# Command-line tool to install and switch between multiple versions of Xcode
+brew "xcodes"
 # A CLI for building apps using Cloud Native Buildpacks
 brew "buildpacks/tap/pack", trusted: true
 # Agent Package Manager (APM): The NPM for AI-Native Development

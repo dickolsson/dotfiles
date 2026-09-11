@@ -13,7 +13,7 @@ if brew autoupdate status 2>/dev/null | grep -q 'Schedule: every day at 05:00'; 
 	exit 0
 fi
 
-brew tap | grep -qx homebrew/autoupdate || brew tap homebrew/autoupdate
+brew tap | grep -qx domt4/autoupdate || brew tap DomT4/autoupdate
 
 # Any prior install (missing, stale, or on the old relative-interval
 # schedule) can make `start` refuse; reset and retry on the fixed time.
