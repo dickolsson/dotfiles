@@ -1,22 +1,61 @@
 #!/bin/sh
-# Install and start the daily Homebrew autoupdate launchd job, fixed at
-# 05:00 (brew update / upgrade / cleanup; auto_updates casks self-update).
+# Install and start the weekly Homebrew autoupdate launchd job, fixed at
+# Wednesday 05:00 (brew update / upgrade / cleanup; auto_updates casks
+# self-update). Wednesday because the bulk of vendor CVE disclosure lands
+# on Patch Tuesday, so the run picks up that batch the next morning.
+#
+# The tap can only express a daily time (StartCalendarInterval with Hour
+# and Minute), so the Weekday key is added to the generated plist here and
+# the agent reloaded. `brew autoupdate status` is unaware of Weekday and
+# still reports "every day at 05:00", so the idempotency check below reads
+# the plist instead of parsing that output.
 set -eu
+
+label=com.github.domt4.homebrew-autoupdate
+plist="$HOME/Library/LaunchAgents/$label.plist"
 
 command -v brew >/dev/null 2>&1 || {
 	echo "40-brew-autoupdate: brew is not installed" >&2
 	exit 2
 }
 
-if brew autoupdate status 2>/dev/null | grep -q 'Schedule: every day at 05:00'; then
-	echo "40-brew-autoupdate: already installed and scheduled for 05:00"
+plist_key() {
+	/usr/libexec/PlistBuddy -c "Print :StartCalendarInterval:$1" "$plist" \
+		2>/dev/null || true
+}
+
+scheduled_weekly() {
+	[ -f "$plist" ] || return 1
+	[ "$(plist_key Weekday)" = "3" ] || return 1
+	[ "$(plist_key Hour)" = "5" ] || return 1
+	[ "$(plist_key Minute)" = "0" ] || return 1
+	/bin/launchctl list | grep -q "$label"
+}
+
+if scheduled_weekly; then
+	echo "40-brew-autoupdate: already scheduled for Wednesday 05:00"
 	exit 0
 fi
 
 brew tap | grep -qx domt4/autoupdate || brew tap DomT4/autoupdate
 
-# Any prior install (missing, stale, or on the old relative-interval
-# schedule) can make `start` refuse; reset and retry on the fixed time.
+# Any prior install (missing, stale, or on the old daily or
+# relative-interval schedule) can make `start` refuse; reset and retry.
 brew autoupdate delete >/dev/null 2>&1 || true
 brew autoupdate start 05:00 --upgrade --cleanup
-echo "40-brew-autoupdate: started (daily at 05:00, upgrade + cleanup)"
+
+# Narrow the generated daily trigger to Wednesday only, then reload so
+# launchd picks up the new calendar entry.
+/usr/libexec/PlistBuddy -c "Add :StartCalendarInterval:Weekday integer 3" "$plist" \
+	>/dev/null 2>&1 \
+	|| /usr/libexec/PlistBuddy -c "Set :StartCalendarInterval:Weekday 3" "$plist"
+plutil -lint "$plist" >/dev/null
+
+/bin/launchctl bootout "gui/$(id -u)/$label" >/dev/null 2>&1 || true
+/bin/launchctl bootstrap "gui/$(id -u)" "$plist"
+
+scheduled_weekly || {
+	echo "40-brew-autoupdate: job did not come up on the weekly schedule" >&2
+	exit 1
+}
+echo "40-brew-autoupdate: started (Wednesday 05:00, upgrade + cleanup)"

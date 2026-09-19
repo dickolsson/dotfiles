@@ -1,6 +1,6 @@
 ---
 name: homebrew-hardening
-description: Audit the Homebrew installation against the hardening baseline (automated daily updates via launchd, integrity verification, tap allowlist, system env file, prefix permissions, Brewfile drift). Use when asked to audit, check, or verify Homebrew security or hardening.
+description: Audit the Homebrew installation against the hardening baseline (automated weekly updates via launchd, integrity verification, tap allowlist, system env file, prefix permissions, Brewfile drift). Use when asked to audit, check, or verify Homebrew security or hardening.
 ---
 
 # Homebrew hardening audit
@@ -22,7 +22,7 @@ they bind in every zsh, not just interactive shells):
 - `HOMEBREW_FORMULA_BUILD_NETWORK=deny`
 - `HOMEBREW_FORMULA_POSTINSTALL_NETWORK=deny`
 - `HOMEBREW_FORMULA_TEST_NETWORK=deny`
-- `HOMEBREW_ALLOWED_TAPS` (non-empty; must include `homebrew/autoupdate`)
+- `HOMEBREW_ALLOWED_TAPS` (non-empty; must include `domt4/autoupdate`)
 
 Also: `HOMEBREW_CASK_OPTS` must contain `--require-sha` and must NOT contain
 `--no-quarantine`.
@@ -65,17 +65,18 @@ them. The enforcement copy lives in Homebrew's system-wide env file:
 ## 4. Homebrew itself on a stable release
 
 `brew --version` must be a plain tag (e.g. `6.0.19`). A suffix like
-`-9-g<hash>` means brew is on untagged commits — remediation: the
-autoupdate job corrects this on its next run (with
-`HOMEBREW_UPDATE_TO_TAG=1` set), or run `brew update` manually.
+`-9-g<hash>` means brew is on untagged commits. The autoupdate job
+corrects this (with `HOMEBREW_UPDATE_TO_TAG=1` set), but on the weekly
+schedule that can be up to seven days away — remediation: run
+`brew update` manually rather than waiting for it.
 
 ## 5. Automated updates (launchd)
 
-Updates run unattended via the official `homebrew/autoupdate` tap,
-installed by the `40-brew-autoupdate` bootstrap hook (remediation for any
-failure below: `make bootstrap`):
+Updates run unattended via the `domt4/autoupdate` tap, installed by the
+`40-brew-autoupdate` bootstrap hook (remediation for any failure below:
+`make bootstrap`):
 
-- The `homebrew/autoupdate` tap is tapped.
+- The `domt4/autoupdate` tap is tapped.
 - `brew autoupdate status` reports the job installed and running.
 - The launchd agent
   `~/Library/LaunchAgents/com.github.domt4.homebrew-autoupdate.plist`
@@ -86,9 +87,23 @@ failure below: `make bootstrap`):
   wrapper script the plist's ProgramArguments points to (under
   `~/Library/Application Support/com.github.domt4.homebrew-autoupdate/`)
   must not pass `--greedy`.
-- The interval is 86400 seconds (daily) or shorter.
+- The schedule is weekly on Wednesday morning: the plist has
+  `StartCalendarInterval` with `Hour` 5, `Minute` 0 and `Weekday` 3 (the
+  tap only generates Hour/Minute, so `40-brew-autoupdate` adds `Weekday`
+  and reloads the agent; `brew autoupdate status` ignores `Weekday` and
+  still prints "every day at 05:00" — read the plist, not that line).
+- The plist carries `StartCalendarInterval` and NOT `StartInterval`. An
+  older relative-interval install leaves the latter behind, and launchd
+  honours both keys — the job would then also fire every N seconds,
+  silently defeating the weekly policy.
+- The notifier path baked into the wrapper script resolves: the
+  `notifier/notify.sh` argument in the script must exist on disk. The tap
+  directory is written into the script at install time, so it can point
+  somewhere the installed tap no longer lives — every run then exits
+  non-zero after an otherwise clean upgrade.
 - Logs under `~/Library/Logs/com.github.domt4.homebrew-autoupdate/` show a
-  successful run within the last two days (allow slack for sleep/reboots).
+  successful run within the last eight days (allow slack for
+  sleep/reboots).
 - No OTHER Homebrew-related launchd jobs exist in `~/Library/LaunchAgents`
   or `/Library/LaunchDaemons` — flag anything beyond the autoupdate agent.
 - `brew services list` — flag any running service the user does not
@@ -110,7 +125,9 @@ From `brew info --cask --json=v2` for all installed casks:
   `~/scripts/rancher-profile.plist`), VSCodium's `update.mode` in its user
   settings (must be `default` or unset). Flag any that is off.
 - Casks with `auto_updates: false` receive updates only from the autoupdate
-  job, so confirm section 5 passes.
+  job, so confirm section 5 passes. On the weekly schedule these lag a
+  disclosure by up to seven days; for a cask under active exploitation the
+  remediation is `brew upgrade --cask <name>` now, not the next run.
 
 ## 7. Prefix permissions
 
