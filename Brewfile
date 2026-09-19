@@ -24,6 +24,8 @@ brew "gh"
 brew "git"
 # Audit git repos for secrets
 brew "gitleaks"
+# Open source programming language to build simple/reliable/efficient software
+brew "go"
 # Lightweight and flexible command-line JSON processor
 brew "jq"
 # Handy way to save and run project-specific commands
@@ -73,7 +75,7 @@ brew "supabase/tap/supabase", trusted: true
 # Desktop password and login vault
 cask "bitwarden"
 # Terminal-based AI coding assistant
-cask "claude-code@latest"
+cask "claude-code"
 # Terminal emulator that uses platform-native UI and GPU acceleration
 cask "ghostty"
 # Kubernetes and container management on the desktop
