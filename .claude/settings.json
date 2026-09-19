@@ -8,6 +8,18 @@
   "permissions": {
     "defaultMode": "auto"
   },
+  "autoMode": {
+    "environment": [
+      "$defaults",
+      "Primary use: software development on Swift packages targeting macOS and iOS.",
+      "Source control: github.com/dickolsson.",
+      "Repository visibility: private unless a repository's remote or my own message says otherwise.",
+      "Host containment: ordinary developer machine with open internet; no container egress allow-list.",
+      "Internal package registry: none. SwiftPM resolves pinned dependencies from public hosts over HTTPS, and Homebrew installs from public taps; both are expected traffic.",
+      "Additional context: Apple-platform development. Routine local tooling includes xcodebuild, xcrun simctl, xcodegen, swift build, swift package, otool, lipo, plutil, mandoc, and the pty-driven capture scripts a repository ships for its own tests. iOS Simulator devices are ephemeral local sandboxes rather than deployment targets, so creating, booting, erasing, installing to, shutting down, or deleting a simulator is routine development rather than a production deploy or a destructive remote action.",
+      "Additional context: a repository's own gate scripts, linters, and test runners are read-only verification tools. Running one, or parse-checking it with 'sh -n', inspects the working tree and is routine development even when the script's name or output mentions secrets, credentials, entitlements, or signing."
+    ]
+  },
   "model": "opus[1m]",
   "statusLine": {
     "type": "command",
