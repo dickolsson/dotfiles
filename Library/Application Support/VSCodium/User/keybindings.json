@@ -1,0 +1,14 @@
+// VSCodium keybindings (JSONC: comments are allowed).
+[
+  // Shift+Enter inserts a newline in Claude Code's prompt instead of
+  // submitting. xterm.js sends a plain CR for Shift+Enter, so send ESC CR,
+  // which Claude Code reads as newline. This is the same binding Claude
+  // Code's `/terminal-setup` writes for VS Code; that command does not
+  // know VSCodium's config path, so it is tracked here instead.
+  {
+    "key": "shift+enter",
+    "command": "workbench.action.terminal.sendSequence",
+    "args": { "text": "\u001b\r" },
+    "when": "terminalFocus"
+  }
+]

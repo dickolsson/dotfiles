@@ -1,5 +1,32 @@
 {
   "update.mode": "default",
   "workbench.colorTheme": "Light 2026",
-  "explorer.confirmDelete": false
+  "explorer.confirmDelete": false,
+  "terminal.integrated.defaultProfile.osx": "zsh",
+
+  // Integrated terminal tuned for full-screen TUIs (Claude Code with
+  // "tui": "fullscreen"). Claude Code's own `/terminal-setup` applies the
+  // first two to VS Code, Cursor and Windsurf but does not know VSCodium's
+  // settings path, so they are tracked here instead. Reload the window
+  // after changing any of these; they apply to new terminals only.
+  //
+  // The WebGL renderer garbles text and drops frames on rapid full-screen
+  // repaints; the DOM renderer is slower but correct.
+  "terminal.integrated.gpuAcceleration": "off",
+  // xterm.js sends one scroll event per wheel notch; 3 matches native feel.
+  "terminal.integrated.mouseWheelScrollSensitivity": 3,
+  // 4.5 (the default) recolors dim/theme text to force contrast, which
+  // breaks the TUI's own palette. 1 renders colors as sent.
+  "terminal.integrated.minimumContrastRatio": 1,
+  // Shell-integration overlays paint over the alternate screen: the sticky
+  // header hides the top rows and the gutter marks shift the left column.
+  // Shell integration itself stays on (cwd tracking, link detection).
+  "terminal.integrated.stickyScroll.enabled": false,
+  "terminal.integrated.shellIntegration.decorationsEnabled": "never",
+  // Terminal IntelliSense binds Up/Tab/Escape while its popup is open,
+  // which steals those keys from the prompt.
+  "terminal.integrated.suggest.enabled": false
+  // "terminal.integrated.macOptionIsMeta" stays off on purpose: the
+  // Swedish keyboard layout types |, [, ], {, }, $, @, \ and ~ with Option,
+  // and Meta would swallow them. Shift+Enter is bound in keybindings.json.
 }
