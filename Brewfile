@@ -78,6 +78,8 @@ cask "bitwarden"
 cask "claude-code"
 # Terminal emulator that uses platform-native UI and GPU acceleration
 cask "ghostty"
+# Markdown previewer with bundled Quick Look extension
+cask "markdown-preview"
 # Kubernetes and container management on the desktop
 cask "rancher"
 # Google Chromium, sans integration with Google
