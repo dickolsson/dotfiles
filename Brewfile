@@ -3,6 +3,7 @@ tap "domt4/autoupdate", trusted: { commands: ["autoupdate"] }
 tap "forwardimpact/tap", trusted: { casks: ["fit-outpost"] }
 tap "microsoft/apm"
 tap "oven-sh/bun"
+tap "sourcemeta/apps"
 tap "supabase/tap"
 # GNU multiple precision arithmetic library
 brew "gmp"
@@ -88,3 +89,5 @@ cask "ungoogled-chromium"
 cask "vscodium"
 # Services and library CLIs for Forward Impact products
 cask "forwardimpact/tap/fit-gear", trusted: true
+# Validate, lint, test, and format JSON Schemas
+cask "sourcemeta/apps/jsonschema", trusted: true
